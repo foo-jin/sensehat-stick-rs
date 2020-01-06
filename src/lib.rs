@@ -58,7 +58,7 @@ impl Direction {
 }
 
 /// The action that was executed with the given `Direction`.
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Action {
     Release = 0,
     Press = 1,
@@ -80,9 +80,9 @@ impl Action {
 /// `std::time::Duration`, the `Direction`, and the `Action` that were issued by the `JoyStick`.
 #[derive(Debug)]
 pub struct JoyStickEvent {
-    timestamp: Duration,
-    direction: Direction,
-    action: Action,
+    pub timestamp: Duration,
+    pub direction: Direction,
+    pub action: Action,
 }
 
 impl JoyStickEvent {
@@ -121,7 +121,8 @@ impl JoyStick {
     /// Returns a result with a `Vec<JoyStickEvent>`. This function will
     /// block the current thread until events are issued by the `JoyStick` device.
     pub fn events(&mut self) -> io::Result<Vec<JoyStickEvent>> {
-        let events: Vec<JoyStickEvent> = self.device
+        let events: Vec<JoyStickEvent> = self
+            .device
             .events_no_sync()
             .map_err(|e| io::Error::from(e))?
             .filter(|ev| ev._type == 1)
